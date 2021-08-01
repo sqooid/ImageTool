@@ -11,7 +11,12 @@ namespace constants {
 GuiWindow::GuiWindow() :
 	bChoosingFiles{ false },
 	editor{},
-	transparency{ false }
+	bEnableTransparency{ true },
+	newFilePrefix{ "" },
+	newFileSuffix{ "" },
+	alpha{ 0.0 },
+	tolerance{ 0.05 },
+	transparencyColor{ 1.0, 1.0, 1.0, 1.0 }
 {
 	currentDirectory = fs::current_path();
 }
@@ -42,6 +47,7 @@ void GuiWindow::renderWindow()
 				if ((*itSelected).second == 2)
 				{
 					itSelected = editor.currentEditingFiles.erase(itSelected);
+					fileAddBuffer.erase(itSelected);
 				}
 				else
 				{
@@ -86,13 +92,22 @@ void GuiWindow::renderWindow()
 	/*
 	Editing options
 	*/
-	if (ImGui::CollapsingHeader("Transparency"))
+	showTransparencyPanel();
+
+	ImGui::Separator();
+
+	/*
+	Save options
+	*/
+	ImGui::InputText("Saved file name prefix", newFilePrefix, 64);
+	ImGui::InputText("Saved file name suffix", newFileSuffix, 64);
+	if (ImGui::Button("Save images"))
 	{
-		if (ImGui::Button("Enable"))
-		{
-			editor.test();
-		}
+		saveImages();
 	}
+	ImGui::SameLine();
+	ImGui::Text("(to /Out)");
+
 
 	ImGui::End();
 
@@ -108,6 +123,43 @@ void GuiWindow::renderWindow()
 void GuiWindow::setEditor(EditorState& editor)
 {
 	this->editor = editor;
+}
+
+void GuiWindow::showTransparencyPanel()
+{
+	if (ImGui::CollapsingHeader("Transparency"))
+	{
+		ImGui::Checkbox("Enable", &bEnableTransparency);
+
+		ImGui::ColorEdit3("Color to modify transparency", (float*)&transparencyColor, 0);
+		ImGui::SliderFloat("New alpha", &alpha, 0.0f, 1.0f, "%.2f");
+		ImGui::SliderFloat("Tolerance (Higher means more pixels are affected)", &tolerance, 0.0f, 1.0f, "%.2f");
+
+	}
+}
+
+void GuiWindow::saveImages()
+{
+	fs::path output("Out");
+	if (!fs::exists(output))
+	{
+		fs::create_directory(output);
+	}
+	for (const auto& file : editor.currentEditingFiles)
+	{
+		editor.readImage(file.first);
+		if (bEnableTransparency)
+		{
+			editor.makeBackgroundTransparent((float*)&transparencyColor, alpha, tolerance);
+		}
+		// Creating new file name
+		std::string filename(newFilePrefix);
+		filename += file.first.stem().string();
+		filename += newFileSuffix;
+		filename += ".png";
+		fs::path newPath = output / fs::path(filename);
+		editor.saveImage(newPath);
+	}
 }
 
 void GuiWindow::showFileChooser()
@@ -230,7 +282,4 @@ void GuiWindow::showFileChooser()
 	ImGui::End();
 }
 
-void GuiWindow::addFiles()
-{
-}
 

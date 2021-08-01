@@ -44,7 +44,6 @@ int main(int argc, char* argv[])
 
 	std::string glsl_version = "";
 #ifdef __APPLE__
-	// GL 3.2 + GLSL 150
 	glsl_version = "#version 330";
 	glfwWindowHint( // required on Mac OS
 		GLFW_OPENGL_FORWARD_COMPAT,
@@ -53,12 +52,10 @@ int main(int argc, char* argv[])
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 #elif __linux__
-	// GL 3.2 + GLSL 150
 	glsl_version = "#version 330";
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 #elif _WIN32
-	// GL 3.0 + GLSL 130
 	glsl_version = "#version 330";
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -152,7 +149,7 @@ int main(int argc, char* argv[])
 
 
 		gui.renderWindow();
-		ImGui::ShowDemoWindow();
+		//ImGui::ShowDemoWindow();
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

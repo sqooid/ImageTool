@@ -14,21 +14,34 @@
 
 namespace fs = std::filesystem;
 
+
+
 class GuiWindow
 {
 public:
 	GuiWindow();
 	void renderWindow();
 	void setEditor(EditorState& editor);
-	bool transparency;
 
 private:
 	EditorState editor;
 
+	// Transparency
+	void showTransparencyPanel();
+	bool bEnableTransparency;
+	ImVec4 transparencyColor;
+	float alpha;
+	float tolerance;
+
+	// Saving
+	void saveImages();
+	char newFileSuffix[64];
+	char newFilePrefix[64];
+
+	// File chooser
 	bool bChoosingFiles;
 	fs::path currentDirectory;
 	std::map<fs::path, int8_t> fileAddBuffer;
 	void showFileChooser();
-	void addFiles();
 };
 
